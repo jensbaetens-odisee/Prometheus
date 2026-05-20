@@ -126,7 +126,7 @@ function Ensure-Uv {
         }
     }
 
-    Write-Fail "uv niet geïnstalleerd."
+    Write-Fail "uv niet geinstalleerd."
     Write-Warn "PowerShell 5.1: gebruik winget install astral-sh.uv OF pip install uv"
     Write-Warn "PowerShell 7+: irm https://astral.sh/uv/install.ps1 | iex"
     return $false
@@ -183,7 +183,7 @@ function Check-Outlook {
     }
 }
 
-Write-Host "Prometheus — prerequisite installer" -ForegroundColor White
+Write-Host "Prometheus - prerequisite installer" -ForegroundColor White
 $results = @(
     (Ensure-Git),
     (Ensure-Python),
@@ -207,4 +207,4 @@ Write-Host ""
 Write-Host "Volgende stap (na Fase 0 code):" -ForegroundColor Cyan
 Write-Host "  uv sync" -ForegroundColor Cyan
 Write-Host "  uv run local-agents --help" -ForegroundColor Cyan
-Write-Host "(In PowerShell 5.1: twee regels, of keten met ';' — niet met '&&')" -ForegroundColor DarkGray
+Write-Host "(In PowerShell 5.1: twee regels, of keten met ';' - niet met '&&')" -ForegroundColor DarkGray
