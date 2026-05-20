@@ -1,0 +1,54 @@
+# Python / uv
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example
+.uv/
+uv.lock
+dist/
+build/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.cover
+.hypothesis/
+
+# Data & runtime (lokaal, niet committen)
+data/
+*.db
+*.sqlite3
+chroma/
+.lance/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs & secrets
+*.log
+logs/
+secrets/
+credentials.json
+
+# Streamlit / build artifacts
+.streamlit/
+
+# Outlook / COM test fixtures (optioneel lokaal)
+tests/fixtures/private/
