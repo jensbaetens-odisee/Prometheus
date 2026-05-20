@@ -5,13 +5,18 @@
 
 .DESCRIPTION
   - Git, Python 3.12+, uv, Ollama
-  - Optioneel: Outlook (handmatig), winget voor Ollama-installatie
+  - Compatibel met Windows PowerShell 5.1 (geen &&-operator)
+  - Optioneel: Outlook (handmatig), winget voor installs
   - Trekt Ollama-modellen aan als ollama beschikbaar is
 
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File .\scripts\install-prerequisites.ps1
+
+.NOTES
+  Keten commando's in PowerShell 5.1 met ';' niet met '&&' (&& vereist PowerShell 7+).
 #>
 $ErrorActionPreference = "Continue"
+$PSMajor = $PSVersionTable.PSVersion.Major
 
 function Write-Step($msg) { Write-Host "`n==> $msg" -ForegroundColor Cyan }
 function Write-Ok($msg) { Write-Host "OK: $msg" -ForegroundColor Green }
@@ -64,27 +69,66 @@ function Ensure-Python {
     return $false
 }
 
+function Refresh-Path {
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" +
+        [System.Environment]::GetEnvironmentVariable("Path", "User")
+}
+
 function Ensure-Uv {
     Write-Step "uv (package manager)"
     if (Test-Command uv) {
         Write-Ok (uv --version)
         return $true
     }
-    Write-Warn "uv niet gevonden. Installeren via officiële script..."
-    try {
-        irm https://astral.sh/uv/install.ps1 | iex
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" +
-            [System.Environment]::GetEnvironmentVariable("Path", "User")
-    } catch {
-        Write-Fail "uv-installatie mislukt: $_"
-        Write-Warn "Handmatig: powershell -c `"irm https://astral.sh/uv/install.ps1 | iex`""
-        return $false
+
+    # winget werkt in PowerShell 5.1 (geen && in install-script)
+    if (Test-Command winget) {
+        Write-Warn "uv niet gevonden. Installeren via winget..."
+        winget install --id astral-sh.uv -e --accept-source-agreements --accept-package-agreements
+        Refresh-Path
+        if (Test-Command uv) {
+            Write-Ok (uv --version)
+            return $true
+        }
     }
-    if (Test-Command uv) {
-        Write-Ok (uv --version)
-        return $true
+
+    # pip fallback (geen &&)
+    $pipCmd = $null
+    foreach ($cmd in @("py", "python", "python3")) {
+        if (Test-Command $cmd) {
+            $pipCmd = $cmd
+            break
+        }
     }
-    Write-Fail "Herstart de terminal en voer dit script opnieuw uit na uv-installatie."
+    if ($pipCmd) {
+        Write-Warn "uv installeren via pip ($pipCmd -m pip)..."
+        & $pipCmd -m pip install --upgrade uv 2>&1 | Out-Host
+        Refresh-Path
+        if (Test-Command uv) {
+            Write-Ok (uv --version)
+            return $true
+        }
+    }
+
+    # Officieel script alleen op PowerShell 7+ (bevat &&)
+    if ($PSMajor -ge 7) {
+        Write-Warn "uv installeren via astral install.ps1 (PowerShell 7+)..."
+        try {
+            $installScript = (Invoke-WebRequest -Uri "https://astral.sh/uv/install.ps1" -UseBasicParsing).Content
+            Invoke-Expression $installScript
+            Refresh-Path
+        } catch {
+            Write-Warn "uv install.ps1 mislukt: $_"
+        }
+        if (Test-Command uv) {
+            Write-Ok (uv --version)
+            return $true
+        }
+    }
+
+    Write-Fail "uv niet geïnstalleerd."
+    Write-Warn "PowerShell 5.1: gebruik winget install astral-sh.uv OF pip install uv"
+    Write-Warn "PowerShell 7+: irm https://astral.sh/uv/install.ps1 | iex"
     return $false
 }
 
@@ -97,8 +141,7 @@ function Ensure-Ollama {
     if (Test-Command winget) {
         Write-Warn "Ollama niet gevonden. Installeren via winget..."
         winget install --id Ollama.Ollama -e --accept-source-agreements --accept-package-agreements
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" +
-            [System.Environment]::GetEnvironmentVariable("Path", "User")
+        Refresh-Path
     }
     if (Test-Command ollama) {
         Write-Ok (ollama --version 2>&1)
@@ -160,4 +203,8 @@ if ($results -contains $false) {
 }
 
 Write-Ok "Alle geautomatiseerde prerequisites zijn aanwezig."
-Write-Host "`nVolgende stap (na Fase 0 code): uv sync && uv run local-agents --help" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Volgende stap (na Fase 0 code):" -ForegroundColor Cyan
+Write-Host "  uv sync" -ForegroundColor Cyan
+Write-Host "  uv run local-agents --help" -ForegroundColor Cyan
+Write-Host "(In PowerShell 5.1: twee regels, of keten met ';' — niet met '&&')" -ForegroundColor DarkGray

@@ -10,11 +10,13 @@ Lokaal gehost, privacy-first **agentic AI** op Windows: Ollama als LLM, een **co
 
 ### Automatisch (aanbevolen)
 
-Vanuit de projectmap, in PowerShell:
+Vanuit de projectmap, in **Windows PowerShell** of PowerShell 7:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\install-prerequisites.ps1
 ```
+
+> **PowerShell 5.1:** de operator `&&` werkt niet. Keten commando's met `;` of op aparte regels (het install-script gebruikt daarom `winget` voor uv).
 
 Het script controleert en installeert waar mogelijk:
 
@@ -22,7 +24,7 @@ Het script controleert en installeert waar mogelijk:
 |----------|------|-------------|
 | **Git** | Versiebeheer | `winget` indien ontbreekt |
 | **Python 3.12+** | Runtime | `winget` indien ontbreekt |
-| **uv** | Dependencies, `uv run` | [astral.sh/uv](https://astral.sh/uv/install.ps1) |
+| **uv** | Dependencies, `uv run` | `winget install astral-sh.uv` of `pip install uv` (PS 5.1); anders [install.ps1](https://astral.sh/uv/install.ps1) (PS 7+) |
 | **Ollama** | Lokale LLM + embeddings | `winget install Ollama.Ollama` |
 | **Outlook desktop** | Mail-agent (COM) | Handmatig / Office — niet via script |
 
@@ -30,7 +32,8 @@ Optioneel worden Ollama-modellen voorgesteld: `llama3.1:8b`, `llama3.2:3b`, `nom
 
 ### Handmatig
 
-- **uv:** `powershell -c "irm https://astral.sh/uv/install.ps1 | iex"`
+- **uv (PS 5.1):** `winget install --id astral-sh.uv -e` of `py -m pip install uv`
+- **uv (PS 7+):** `irm https://astral.sh/uv/install.ps1 | iex`
 - **Ollama:** https://ollama.com/download/windows — daarna `ollama pull llama3.1:8b` en `ollama pull nomic-embed-text`
 - **pywin32** (later, via project): komt in `pyproject.toml`, alleen Windows
 
