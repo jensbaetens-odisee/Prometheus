@@ -1,0 +1,17 @@
+agents:
+  coordinator:
+    description: Routes user requests to specialized agents
+    tools: []
+
+  study:
+    description: Answers questions from indexed courseware (RAG)
+    tools:
+      - read_file
+
+  mail:
+    description: Reads mail and drafts replies via Outlook COM
+    tools: []
+
+  admin:
+    description: Administrative tasks such as folder creation from PDFs
+    tools: []

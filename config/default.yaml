@@ -1,0 +1,27 @@
+ollama:
+  base_url: "http://127.0.0.1:11434"
+  chat_model: "llama3.1:8b"
+  router_model: "llama3.2:3b"
+  embed_model: "nomic-embed-text"
+
+study:
+  chroma_path: "data/chroma"
+  chunk_size: 800
+  chunk_overlap: 100
+  top_k: 5
+  min_score: 0.2
+
+filesystem:
+  allowed_roots:
+    - "data"
+
+privacy:
+  default_level: local_only
+  allow_online_tools: false
+  require_approval_for:
+    - send_email
+    - delete_path
+    - online_search
+
+coordinator:
+  default_language: nl

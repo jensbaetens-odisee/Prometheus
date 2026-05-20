@@ -37,12 +37,31 @@ Optioneel worden Ollama-modellen voorgesteld: `llama3.1:8b`, `llama3.2:3b`, `nom
 - **Ollama:** https://ollama.com/download/windows — daarna `ollama pull llama3.1:8b` en `ollama pull nomic-embed-text`
 - **pywin32** (later, via project): komt in `pyproject.toml`, alleen Windows
 
-Na **Fase 0** (code scaffold):
+**Fase 0** — project installeren en CLI:
 
 ```powershell
-uv sync
+# met uv (aanbevolen)
+uv sync --extra dev
 uv run local-agents --help
+
+# of met pip
+py -m pip install -e ".[dev]"
+py -m local_agents.presentation.cli --help
 ```
+
+Voorbeelden:
+
+```powershell
+uv run local-agents --fake-llm ask "Vraag over leerstof"
+uv run local-agents study index ./data/courseware/fysica --name fysica
+uv run local-agents study ask "Wat is kinetische energie?" --course fysica
+uv run local-agents study repl --course fysica
+uv run local-agents tools
+uv run local-agents read-file data/voorbeeld.txt
+py -m pytest
+```
+
+**Study-agent:** indexeer PDF/txt/md uit een map, daarna vragen met bronnen (lokaal via Ollama + Chroma onder `data/chroma`).
 
 ---
 
@@ -253,14 +272,14 @@ Optioneel later: DuckDuckGo/SearXNG, Tesseract OCR — nooit leerstof/mail zonde
 | Fase | Inhoud |
 |------|--------|
 | **0** | Lagen, ports, DI, CLI skeleton, `OllamaAdapter`, `FakeLLMPort`, tool registry |
-| **1** | Study-agent: RAG, `study index/ask/repl` |
+| **1** | Study-agent: RAG, Chroma, `study index/ask/repl` |
 | **2** | Admin-agent: PDF-vakken, mappen + confirm |
 | **3** | Mail-agent: `OutlookComAdapter`, draft/approve |
 | **4** | Coordinator `ask`, skill loader |
 | **5** | Streamlit of FastAPI (zelfde `AppContainer`) |
 | **6** | Optionele online tools |
 
-**Huidige status:** planning + prerequisites-script; applicatiecode volgt in Fase 0.
+**Huidige status:** **Fase 1** afgerond (study-agent, RAG, Chroma, CLI `study index/ask/repl`). Fase 2 (admin) volgt.
 
 ---
 
